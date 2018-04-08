@@ -1,0 +1,69 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+@section scripts {
+    <script>
+        $(() => {
+            // Load years when the page loads.
+            loadYears();
+
+            // When a year is selected, clear make and model and reload makes.
+            $('#year').change(() => {
+                clearDropdown('#make');
+                clearDropdown('#model');
+                loadMakes();
+            });
+
+            // When a make is selected, clear models and reload models.
+            $('#make').change(() => {
+                clearDropdown('#model');
+                loadModels();
+            });
+        });
+
+        function loadYears() {
+            fetch('/Home/GetYears')
+                .then((response) => response.json())
+                .then((years) => {
+                    loadValuesIntoDropdown('#year', years);
+                });
+        }
+
+        function loadMakes() {
+            const year = document.getElementById('year').value;
+            fetch('/Home/GetMakesFor?year=' + year)
+                .then((response) => response.json())
+                .then((makes) => {
+                    loadValuesIntoDropdown('#make', makes);
+                });
+        }
+
+        function loadModels() {
+            const year = document.getElementById('year').value;
+            const make = document.getElementById('make').value;
+            fetch('/Home/GetModelsFor?year=' + year + '&make=' + make)
+                .then((response) => response.json())
+                .then((models) => {
+                    loadValuesIntoDropdown('#model', models);
+                });
+        }
+
+        function loadValuesIntoDropdown(selector, values) {
+            $.each(values, function() {
+                $(selector).append($("<option />").val(this).text(this));
+            });
+        }
+
+        function clearDropdown(selector) {
+            $(selector).html('');
+        }
+    </script>
+}
+    <div class="row">
+        <div class="col-md-4">
+            <select id="year"></select>
+            <select id="make"></select>
+            <select id="model"></select>
+        </div>
+    </div>
